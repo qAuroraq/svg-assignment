@@ -104,7 +104,7 @@ test('all failed edits leave document and both history directions intact', () =>
     'create rect r2 0 0 1 1 blue extra',
     'create rect r2 0 0 1 1 in root',
     'create rect r2 0 0 1 1 blue in root',
-    'create circle c1 1 2 3',
+    'create circle c1 1 2 -3',
     'create rect r2 0 0 1 1 "unclosed',
   ];
   for (const command of failures) {
@@ -152,7 +152,7 @@ test('queries and failures do not lift init history prohibition; successful edit
   session.run('init');
   for (const command of [
     'tree', 'help', 'show r9', 'tree r9', 'move r9 1 2',
-    'create rect r1 0 0 -1 1', 'init 0 10', 'create circle c1 1 2 3',
+    'create rect r1 0 0 -1 1', 'init 0 10', 'create circle c1 1 2 -3',
   ]) {
     session.run(command);
     assert.equal(session.run('undo'), 'error: undo not allowed after io command', command);
@@ -255,10 +255,10 @@ test('pending commands and types report their stage; unknown shape error matches
   const session = new TestSession();
   session.run('init');
   const before = session.run('tree');
-  for (const name of ['read', 'save', 'canvas', 'delete', 'scale', 'set', 'group', 'ungroup', 'addto', 'front', 'back']) {
+  for (const name of ['read', 'save', 'canvas', 'group', 'ungroup', 'addto']) {
     assert.equal(session.run(name), `error: not implemented in this round: ${name}`);
   }
-  for (const type of ['circle', 'ellipse', 'line', 'text', 'g']) {
+  for (const type of ['g']) {
     assert.equal(session.run(`create ${type} example`), `error: not implemented in this round: create ${type}`);
   }
   for (const type of ['hexagon', 'box']) {

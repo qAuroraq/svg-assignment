@@ -238,3 +238,8 @@ result1:Command 已通过 Command、EditingCommand、各具体命令和 HistoryM
 具体测试方法和执行结果在开发过程中补充。
 
 记录类型检查通过、26 项测试通过、两份脚本实际回放成功，以及失败编辑保留 redo、成功新编辑清空 redo 等已验证行为。注明这是第一轮覆盖范围。
+
+
+- 实现进展：五种普通图形已完成；新增 ScaleCommand、SetCommand、DeleteCommand、OrderCommand，其中 OrderCommand 同时服务于 front/back。
+- 设计与约定：记录属性是否设置的恢复方式、删除保留对象身份、绘制顺序、文字缩放和合法无变化编辑的处理。
+- 验证结果：根据本轮执行记录，基线 26 项测试通过，修改后 47 项测试通过；类型检查及三份脚本回放通过。Composite 的 Group 实现仍属于下一轮

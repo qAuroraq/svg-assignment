@@ -1,0 +1,65 @@
+# Five root shapes. Initial and final order: r1, c1, e1, l1, t1.
+init 800 600
+create rect r1 10 20 100 50 #4a90d9
+create circle c1 100 100 20
+create ellipse e1 200 100 30 15
+create line l1 0 0 100 50 black
+create text t1 20 40 "My Diagram 开始"
+tree
+
+# Endpoints must become (5,-10) -> (105,40).
+move l1 5 -10
+show l1
+undo
+redo
+show l1
+
+# Circle must become cx=200 cy=200 r=40.
+scale c1 2
+show c1
+undo
+redo
+show c1
+
+# Restore original text, including Chinese, then repeat redo/undo.
+set t1 text "My Diagram v2"
+show t1
+undo
+show t1
+redo
+undo
+
+# e1 initially has no fill. Undo must remove it again.
+set e1 fill red
+show e1
+undo
+show e1
+redo
+undo
+
+# Geometry and public style edits.
+set r1 width 120
+set l1 stroke-width 2.5
+show r1
+show l1
+
+# Each order operation and deletion must undo to r1,c1,e1,l1,t1.
+front c1
+tree
+undo
+tree
+redo
+undo
+back l1
+tree
+undo
+tree
+redo
+undo
+delete e1
+tree
+undo
+tree
+redo
+undo
+tree

@@ -13,14 +13,14 @@ export class ShapeFormatter {
   public attributes(shape: Shape): string {
     const attributes = Object.entries(shape.getAttributes()).map(([name, value]) => {
       const shortName = name === 'width' ? 'w' : name === 'height' ? 'h' : name;
-      return `${shortName}=${this.value(value)}`;
+      return `${shortName}=${this.value(value, name === 'text')}`;
     });
     return attributes.join(' ');
   }
 
   public show(shape: Shape): string {
     const attributes = Object.entries(shape.getAttributes()).map(
-      ([name, value]) => `  ${name}=${this.value(value)}`,
+      ([name, value]) => `  ${name}=${this.value(value, name === 'text')}`,
     );
     return [`${this.label(shape)}  parent=svg`, ...attributes].join('\n');
   }
@@ -41,8 +41,8 @@ export class ShapeFormatter {
     });
   }
 
-  private value(value: string | number): string {
-    return typeof value === 'string' && (value.length === 0 || /\s|"|\\/u.test(value))
+  private value(value: string | number, quote: boolean = false): string {
+    return typeof value === 'string' && (quote || value.length === 0 || /\s|"|\\/u.test(value))
       ? JSON.stringify(value)
       : String(value);
   }

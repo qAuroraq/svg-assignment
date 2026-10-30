@@ -1,5 +1,5 @@
 import { NumberValue } from './NumberValue.js';
-import { Shape, type GeometryState, type ShapeAttributes } from './Shape.js';
+import { Shape, type AttributeValue, type GeometryState, type ShapeAttributes } from './Shape.js';
 
 export class Rect extends Shape {
   public constructor(
@@ -22,9 +22,7 @@ export class Rect extends Shape {
   }
 
   public override getAttributes(): ShapeAttributes {
-    const geometry = this.captureGeometry();
-    const fill = this.getFill();
-    return fill === undefined ? geometry : { ...geometry, fill };
+    return { ...this.captureGeometry(), ...this.getStyleAttributes() };
   }
 
   public override move(dx: number, dy: number): void {
@@ -35,6 +33,24 @@ export class Rect extends Shape {
     const y = NumberValue.finite(this.y + dy, 'y');
     this.x = x;
     this.y = y;
+  }
+
+  public override scale(factor: number): void {
+    NumberValue.positive(factor, 'scale factor');
+    this.restoreGeometry({
+      x: this.x * factor, y: this.y * factor,
+      width: this.width * factor, height: this.height * factor,
+    });
+  }
+
+  protected override setSpecificAttribute(name: string, value: AttributeValue | undefined): void {
+    switch (name) {
+      case 'x': this.x = NumberValue.attribute(value, name); return;
+      case 'y': this.y = NumberValue.attribute(value, name); return;
+      case 'width': this.width = NumberValue.nonNegative(NumberValue.attribute(value, name), name); return;
+      case 'height': this.height = NumberValue.nonNegative(NumberValue.attribute(value, name), name); return;
+      default: throw new Error(`unknown attribute: ${name}`);
+    }
   }
 
   public override captureGeometry(): Readonly<Record<string, number>> {

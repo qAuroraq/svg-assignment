@@ -2,12 +2,16 @@ import type { ShapeFactory } from '../model/ShapeFactory.js';
 import type { Command } from './Command.js';
 import { CommandArguments } from './CommandArguments.js';
 import { CreateCommand } from './CreateCommand.js';
+import { DeleteCommand } from './DeleteCommand.js';
 import type { Editor } from './Editor.js';
 import { EditingCommand } from './EditingCommand.js';
 import { HelpCommand } from './HelpCommand.js';
 import { InitCommand } from './InitCommand.js';
 import { MoveCommand } from './MoveCommand.js';
+import { OrderCommand } from './OrderCommand.js';
 import { RedoCommand } from './RedoCommand.js';
+import { ScaleCommand } from './ScaleCommand.js';
+import { SetCommand } from './SetCommand.js';
 import type { ShapeFormatter } from './ShapeFormatter.js';
 import { ShowCommand } from './ShowCommand.js';
 import { TreeCommand } from './TreeCommand.js';
@@ -38,6 +42,11 @@ export class CommandDispatcher {
       case 'init': return new InitCommand(this.editor, args);
       case 'create': return new CreateCommand(this.editor, args, this.factory, this.formatter);
       case 'move': return new MoveCommand(this.editor, args, this.formatter);
+      case 'delete': return new DeleteCommand(this.editor, args, this.formatter);
+      case 'scale': return new ScaleCommand(this.editor, args, this.formatter);
+      case 'set': return new SetCommand(this.editor, args, this.formatter);
+      case 'front': return new OrderCommand(this.editor, args, this.formatter, true);
+      case 'back': return new OrderCommand(this.editor, args, this.formatter, false);
       case 'tree': return new TreeCommand(this.editor, args, this.formatter);
       case 'show': return new ShowCommand(this.editor, args, this.formatter);
       case 'undo': return new UndoCommand(this.editor, args);
@@ -46,14 +55,9 @@ export class CommandDispatcher {
       case 'read':
       case 'save':
       case 'canvas':
-      case 'delete':
-      case 'scale':
-      case 'set':
       case 'group':
       case 'ungroup':
       case 'addto':
-      case 'front':
-      case 'back':
         throw new Error(`not implemented in this round: ${name}`);
       default:
         throw new Error(`unknown command: ${name}`);

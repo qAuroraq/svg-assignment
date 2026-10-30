@@ -46,11 +46,24 @@ export class Document {
   }
 
   public remove(shape: Shape): void {
+    const index = this.indexOf(shape);
+    this.shapes.splice(index, 1);
+    this.ids.delete(shape.getId());
+  }
+
+  public indexOf(shape: Shape): number {
     if (this.find(shape.getId()) !== shape) {
       throw new Error(`shape identity changed: ${shape.getId()}`);
     }
-    const index = this.shapes.indexOf(shape);
-    this.shapes.splice(index, 1);
-    this.ids.delete(shape.getId());
+    return this.shapes.indexOf(shape);
+  }
+
+  public reorder(shape: Shape, index: number): void {
+    const originalIndex = this.indexOf(shape);
+    if (!Number.isInteger(index) || index < 0 || index >= this.shapes.length) {
+      throw new Error('invalid ordering index');
+    }
+    this.shapes.splice(originalIndex, 1);
+    this.shapes.splice(index, 0, shape);
   }
 }

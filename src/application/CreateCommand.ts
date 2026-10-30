@@ -24,9 +24,6 @@ export class CreateCommand extends EditingCommand {
     this.args.requireCount(2, Number.POSITIVE_INFINITY, 'create <type> <id> <params...>');
     const document = this.editor.requireDocument();
     const parameters = this.args.getAll().slice(2);
-    if (parameters.length >= 6 && parameters.at(-2) === 'in') {
-      throw new Error('not implemented in this round: create ... in <containerId>');
-    }
     const shape = this.factory.create(this.args.get(0), this.args.get(1), parameters);
     const index = document.insert(shape);
     this.shape = shape;

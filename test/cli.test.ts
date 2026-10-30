@@ -47,6 +47,31 @@ test('real CLI preserves redo across failure and clears it after successful edit
   assert.match(result.stdout, /error: nothing to redo\nrect#r1  parent=svg\n  x=8\n  y=23/);
 });
 
+test('real CLI replays all five shapes and new edits with verifiable final state', () => {
+  const input = readFileSync('test/fixtures/shapes-and-edits.svgcmd', 'utf8');
+  const result = spawnSync(process.execPath, [fileURLToPath(new URL('../src/Main.js', import.meta.url))], {
+    input, encoding: 'utf8', timeout: 10_000,
+  });
+  assert.ifError(result.error);
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, '');
+  assert.doesNotMatch(result.stdout, /^error:/m);
+  assert.match(result.stdout, /line#l1 moved: x1=5 y1=-10 x2=105 y2=40 stroke=black/);
+  assert.match(result.stdout, /circle#c1 scaled: cx=200 cy=200 r=40/);
+  assert.match(result.stdout, /text#t1 restored: x=20 y=40 text="My Diagram 开始"/);
+  assert.match(result.stdout, /ellipse#e1 restored: cx=200 cy=100 rx=30 ry=15\n/);
+  const finalTree = [
+    'svg (800x600)',
+    '├── rect#r1  x=10 y=20 w=120 h=50 fill=#4a90d9',
+    '├── circle#c1  cx=200 cy=200 r=40',
+    '├── ellipse#e1  cx=200 cy=100 rx=30 ry=15',
+    '├── line#l1  x1=5 y1=-10 x2=105 y2=40 stroke=black stroke-width=2.5',
+    '└── text#t1  x=20 y=40 text="My Diagram 开始"',
+    '',
+  ].join('\n');
+  assert.ok(result.stdout.endsWith(finalTree));
+});
+
 test('real CLI recovers after input errors, supports CRLF and a final line without newline', () => {
   const result = spawnSync(process.execPath, [fileURLToPath(new URL('../src/Main.js', import.meta.url))], {
     input: ' \r\n# comment "\r\ninit\r\ncreate rect r1 0 0 1 1 "bad\r\ncreate rect r1 0 0 1 1 #abc\r\nshow r1',

@@ -1,0 +1,14 @@
+# A failed edit must preserve redo.
+init
+create rect r1 10 20 100 50 #4a90d9
+move r1 30 -5
+undo
+move r9 1 2
+redo
+show r1
+
+# A successful edit must clear redo.
+undo
+move r1 -2 3
+redo
+show r1

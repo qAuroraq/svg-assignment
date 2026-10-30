@@ -1,0 +1,9 @@
+init 800 600
+create rect r1 10 20 100 50 #4a90d9
+tree
+move r1 30 -5
+show r1
+undo
+show r1
+redo
+show r1

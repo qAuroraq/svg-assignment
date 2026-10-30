@@ -144,14 +144,14 @@ test('text preserves Chinese, spaces, empty content, escapes and the literal in'
   assert.equal(session.run('tree t'), 'text#t  x=1 y=2 text="nonempty"');
 });
 
-test('in suffix is explicitly deferred for all types without hiding unknown types', () => {
+test('in suffix requires an existing container without hiding unknown types', () => {
   const session = new TestSession();
   session.run('init');
   for (const shape of shapes) {
-    assert.equal(session.run(`${shape.create} in root`), 'error: not implemented in this round: create ... in <containerId>');
+    assert.equal(session.run(`${shape.create} in root`), 'error: no such container: root');
   }
-  assert.equal(session.run('create circle s 1 2 3 in root'), 'error: not implemented in this round: create ... in <containerId>');
-  assert.equal(session.run('create text s 1 2 "in" in root'), 'error: not implemented in this round: create ... in <containerId>');
+  assert.equal(session.run('create circle s 1 2 3 in root'), 'error: no such container: root');
+  assert.equal(session.run('create text s 1 2 "in" in root'), 'error: no such container: root');
   assert.equal(session.run('create box s 1 2 3 4 "in" in root'), 'error: unknown shape type: box (is the plugin loaded?)');
   assert.equal(session.run('tree'), 'svg (800x600)');
   assert.equal(session.run('create text s 1 2 "in"'), 'text#s created');

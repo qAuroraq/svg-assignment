@@ -25,19 +25,19 @@ export class SetCommand extends EditingCommand {
     const before = shape.getAttributes()[attribute];
     shape.setAttribute(attribute, this.args.get(2));
     this.state = { shape, attribute, before, after: shape.getAttributes()[attribute] };
-    return `${this.formatter.label(shape)} updated: ${this.formatter.attributes(shape)}`;
+    return this.formatter.change(shape, 'updated');
   }
 
   public override undo(): string {
     const { shape, attribute, before } = this.requireSet();
     shape.setAttribute(attribute, before);
-    return `${this.formatter.label(shape)} restored: ${this.formatter.attributes(shape)}`;
+    return this.formatter.change(shape, 'restored');
   }
 
   public override redo(): string {
     const { shape, attribute, after } = this.requireSet();
     shape.setAttribute(attribute, after);
-    return `${this.formatter.label(shape)} updated: ${this.formatter.attributes(shape)}`;
+    return this.formatter.change(shape, 'updated');
   }
 
   private requireSet(): NonNullable<SetCommand['state']> {

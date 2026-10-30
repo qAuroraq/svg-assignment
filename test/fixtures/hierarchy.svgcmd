@@ -1,0 +1,64 @@
+# Assignment 6.1: two-node flowchart (SVG save is a later round).
+init 800 600
+create g flowchart
+create g node1 in flowchart
+create rect start 120 100 160 60 #4a90d9 in node1
+create text start-label 155 135 "开始" in node1
+create g node2 in flowchart
+create rect process 520 100 160 60 #f5a623 in node2
+create text process-label 545 135 "处理数据" in node2
+create line arrow1 280 130 520 130 black in flowchart
+tree
+
+# Only node2 moves: process y=200; process-label y=235.
+move node2 0 100
+show process
+show process-label
+show start
+show arrow1
+undo
+tree node2
+
+# Expected error; nested node1 can be ungrouped and restored.
+ungroup flowchart
+ungroup node1
+tree flowchart
+show start
+undo
+show start
+show start-label
+
+# Same-parent grouping uses document order despite reversed arguments.
+group node-pair node2 node1
+tree flowchart
+show node1
+undo
+show node1
+
+# Cross-parent grouping appends a root group; undo restores both parents.
+group labels process-label start-label
+tree
+show start-label
+show process-label
+undo
+show start-label
+show process-label
+
+# Relocation and promotion preserve coordinates and restore direct parents.
+addto node2 start-label
+show start-label
+undo
+show start-label
+addto flowchart process-label
+show process-label
+undo
+show process-label
+
+# Nested ordering and subtree deletion undo to the original tree.
+front start
+tree node1
+undo
+delete node2
+tree
+undo
+tree

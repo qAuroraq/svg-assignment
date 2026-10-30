@@ -52,6 +52,8 @@
 
 本项目拟采用 Command 模式组织命令执行与撤销重做，采用 Composite 模式表示图形与容器的树形结构，并使用简单工厂机制集中创建图形对象。
 
+Composite 已通过 Group extends Shape 落地；叶子和容器通过统一接口接受操作。
+
 #### 1. Command 模式：组织操作与撤销重做
 
 **选择理由**
@@ -198,6 +200,8 @@ result1:Command 已通过 Command、EditingCommand、各具体命令和 HistoryM
 ## 过程记录
 
 第一轮选择先完成 init → create rect → move → undo/redo → tree/show 的流程；移动采用前后几何快照恢复状态。这里可以记录设计选择，不要写成“发现并修复了浮点错误”，除非实际发生过。
+
+记录根级 ungroup 与撤销根级 group 的区别，以及跨父容器分组位置等项目约定。
 
 ### 架构方案初步确定
 

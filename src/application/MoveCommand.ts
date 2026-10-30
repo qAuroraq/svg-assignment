@@ -27,19 +27,19 @@ export class MoveCommand extends EditingCommand {
     this.shape = shape;
     this.before = before;
     this.after = shape.captureGeometry();
-    return `${this.formatter.label(shape)} moved: ${this.formatter.attributes(shape)}`;
+    return this.formatter.change(shape, 'moved');
   }
 
   public override undo(): string {
     const { shape, before } = this.requireMoved();
     shape.restoreGeometry(before);
-    return `${this.formatter.label(shape)} moved back: ${this.formatter.attributes(shape)}`;
+    return this.formatter.change(shape, 'moved back');
   }
 
   public override redo(): string {
     const { shape, after } = this.requireMoved();
     shape.restoreGeometry(after);
-    return `${this.formatter.label(shape)} moved: ${this.formatter.attributes(shape)}`;
+    return this.formatter.change(shape, 'moved');
   }
 
   private requireMoved(): { shape: Shape; before: GeometryState; after: GeometryState } {

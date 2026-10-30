@@ -1,11 +1,13 @@
 import type { ShapeFactory } from '../model/ShapeFactory.js';
 import type { Command } from './Command.js';
+import { AddToCommand } from './AddToCommand.js';
 import { CommandArguments } from './CommandArguments.js';
 import { CreateCommand } from './CreateCommand.js';
 import { DeleteCommand } from './DeleteCommand.js';
 import type { Editor } from './Editor.js';
 import { EditingCommand } from './EditingCommand.js';
 import { HelpCommand } from './HelpCommand.js';
+import { GroupCommand } from './GroupCommand.js';
 import { InitCommand } from './InitCommand.js';
 import { MoveCommand } from './MoveCommand.js';
 import { OrderCommand } from './OrderCommand.js';
@@ -16,6 +18,7 @@ import type { ShapeFormatter } from './ShapeFormatter.js';
 import { ShowCommand } from './ShowCommand.js';
 import { TreeCommand } from './TreeCommand.js';
 import { UndoCommand } from './UndoCommand.js';
+import { UngroupCommand } from './UngroupCommand.js';
 
 export class CommandDispatcher {
   public constructor(
@@ -47,6 +50,9 @@ export class CommandDispatcher {
       case 'set': return new SetCommand(this.editor, args, this.formatter);
       case 'front': return new OrderCommand(this.editor, args, this.formatter, true);
       case 'back': return new OrderCommand(this.editor, args, this.formatter, false);
+      case 'group': return new GroupCommand(this.editor, args, this.factory, this.formatter);
+      case 'addto': return new AddToCommand(this.editor, args, this.formatter);
+      case 'ungroup': return new UngroupCommand(this.editor, args, this.formatter);
       case 'tree': return new TreeCommand(this.editor, args, this.formatter);
       case 'show': return new ShowCommand(this.editor, args, this.formatter);
       case 'undo': return new UndoCommand(this.editor, args);
@@ -55,9 +61,6 @@ export class CommandDispatcher {
       case 'read':
       case 'save':
       case 'canvas':
-      case 'group':
-      case 'ungroup':
-      case 'addto':
         throw new Error(`not implemented in this round: ${name}`);
       default:
         throw new Error(`unknown command: ${name}`);

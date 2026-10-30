@@ -18,11 +18,21 @@ export class ShapeFormatter {
     return attributes.join(' ');
   }
 
-  public show(shape: Shape): string {
+  public parent(document: Document, shape: Shape): string {
+    const parent = document.getParent(shape);
+    return parent === undefined ? 'svg' : this.label(parent);
+  }
+
+  public change(shape: Shape, action: string): string {
+    const attributes = this.attributes(shape);
+    return `${this.label(shape)} ${action}${attributes === '' ? '' : `: ${attributes}`}`;
+  }
+
+  public show(shape: Shape, document: Document): string {
     const attributes = Object.entries(shape.getAttributes()).map(
       ([name, value]) => `  ${name}=${this.value(value, name === 'text')}`,
     );
-    return [`${this.label(shape)}  parent=svg`, ...attributes].join('\n');
+    return [`${this.label(shape)}  parent=${this.parent(document, shape)}`, ...attributes].join('\n');
   }
 
   public tree(document: Document, root?: Shape): string {

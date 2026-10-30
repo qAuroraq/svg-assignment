@@ -14,6 +14,7 @@ export class ShowCommand extends Command {
 
   public override execute(): string {
     this.args.requireCount(1, 1, 'show <id>');
-    return this.formatter.show(this.editor.requireDocument().find(this.args.get(0)));
+    const document = this.editor.requireDocument();
+    return this.formatter.show(document.find(this.args.get(0)), document);
   }
 }

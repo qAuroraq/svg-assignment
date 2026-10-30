@@ -1,5 +1,6 @@
 import { Circle } from './Circle.js';
 import { Ellipse } from './Ellipse.js';
+import { Group } from './Group.js';
 import { Line } from './Line.js';
 import { NumberValue } from './NumberValue.js';
 import { Rect } from './Rect.js';
@@ -7,8 +8,7 @@ import type { Shape } from './Shape.js';
 import { Text } from './Text.js';
 
 export class ShapeFactory {
-  // The only shape-name dispatch. Future types are explicitly distinguished
-  // from unknown/plugin types; their constructors will be added here later.
+  // The only shape-name dispatch; registration can replace this switch later.
   public create(type: string, id: string, parameters: readonly string[]): Shape {
     switch (type) {
       case 'rect': {
@@ -50,19 +50,14 @@ export class ShapeFactory {
         return new Text(id, NumberValue.parse(x!, 'x'), NumberValue.parse(y!, 'y'), content!);
       }
       case 'g':
-        throw new Error(`not implemented in this round: create ${type}`);
+        this.requireParameters(parameters, 0, 0, 'create g <id>');
+        return new Group(id);
       default:
         throw new Error(`unknown shape type: ${type} (is the plugin loaded?)`);
     }
   }
 
   private requireParameters(parameters: readonly string[], min: number, max: number, syntax: string): void {
-    const baseCount = parameters.length - 2;
-    // Check a suffix only after the complete required shape parameters. In
-    // particular, the text content "in" is never interpreted as a clause.
-    if (parameters.at(-2) === 'in' && baseCount >= min && baseCount <= max) {
-      throw new Error('not implemented in this round: create ... in <containerId>');
-    }
     if (parameters.length < min || parameters.length > max) {
       throw new Error(`usage: ${syntax}`);
     }

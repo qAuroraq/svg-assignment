@@ -22,10 +22,10 @@ export class OrderCommand extends EditingCommand {
     const document = this.editor.requireDocument();
     const shape = document.find(this.args.get(0));
     const before = document.indexOf(shape);
-    const after = this.toFront ? document.getChildren().length - 1 : 0;
+    const after = this.toFront ? document.getSiblings(shape).length - 1 : 0;
     document.reorder(shape, after);
     this.state = { document, shape, before, after };
-    return `${this.formatter.label(shape)} moved to ${this.toFront ? 'front' : 'back'} of svg`;
+    return `${this.formatter.label(shape)} moved to ${this.toFront ? 'front' : 'back'} of ${this.formatter.parent(document, shape)}`;
   }
 
   public override undo(): string {
@@ -37,7 +37,7 @@ export class OrderCommand extends EditingCommand {
   public override redo(): string {
     const { document, shape, after } = this.requireOrdered();
     document.reorder(shape, after);
-    return `${this.formatter.label(shape)} moved to ${this.toFront ? 'front' : 'back'} of svg`;
+    return `${this.formatter.label(shape)} moved to ${this.toFront ? 'front' : 'back'} of ${this.formatter.parent(document, shape)}`;
   }
 
   private requireOrdered(): { document: Document; shape: Shape; before: number; after: number } {

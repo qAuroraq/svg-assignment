@@ -1,4 +1,4 @@
-import type { Document } from '../model/Document.js';
+import type { Document, ShapePosition } from '../model/Document.js';
 import type { Shape } from '../model/Shape.js';
 import type { CommandArguments } from './CommandArguments.js';
 import type { Editor } from './Editor.js';
@@ -6,7 +6,7 @@ import { EditingCommand } from './EditingCommand.js';
 import type { ShapeFormatter } from './ShapeFormatter.js';
 
 export class DeleteCommand extends EditingCommand {
-  private state: { document: Document; shape: Shape; index: number } | undefined;
+  private state: { document: Document; shape: Shape; position: ShapePosition } | undefined;
 
   public constructor(
     private readonly editor: Editor,
@@ -20,16 +20,16 @@ export class DeleteCommand extends EditingCommand {
     this.args.requireCount(1, 1, 'delete <id>');
     const document = this.editor.requireDocument();
     const shape = document.find(this.args.get(0));
-    const index = document.indexOf(shape);
+    const position = document.getPosition(shape);
     document.remove(shape);
-    this.state = { document, shape, index };
+    this.state = { document, shape, position };
     return `${this.formatter.label(shape)} deleted`;
   }
 
   public override undo(): string {
-    const { document, shape, index } = this.requireDeleted();
-    document.insert(shape, index);
-    return `${this.formatter.label(shape)} restored into svg`;
+    const { document, shape, position } = this.requireDeleted();
+    document.insert(shape, position.index, position.parent);
+    return `${this.formatter.label(shape)} restored into ${this.formatter.parent(document, shape)}`;
   }
 
   public override redo(): string {
@@ -38,7 +38,7 @@ export class DeleteCommand extends EditingCommand {
     return `${this.formatter.label(shape)} deleted`;
   }
 
-  private requireDeleted(): { document: Document; shape: Shape; index: number } {
+  private requireDeleted(): { document: Document; shape: Shape; position: ShapePosition } {
     if (this.state === undefined) {
       throw new Error('delete command has not executed');
     }

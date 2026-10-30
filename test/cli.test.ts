@@ -72,6 +72,43 @@ test('real CLI replays all five shapes and new edits with verifiable final state
   assert.ok(result.stdout.endsWith(finalTree));
 });
 
+test('real CLI replays the flowchart and hierarchy edits with correct parents and exact restoration', () => {
+  const input = readFileSync('test/fixtures/hierarchy.svgcmd', 'utf8');
+  const result = spawnSync(process.execPath, [fileURLToPath(new URL('../src/Main.js', import.meta.url))], {
+    input, encoding: 'utf8', timeout: 10_000,
+  });
+  assert.ifError(result.error);
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, '');
+  assert.deepEqual(result.stdout.match(/^error:.*$/gm), ['error: cannot ungroup top-level container: flowchart']);
+  assert.match(result.stdout, /rect#process  parent=g#node2\n  x=520\n  y=200\n/);
+  assert.match(result.stdout, /text#process-label  parent=g#node2\n  x=545\n  y=235\n/);
+  assert.match(result.stdout, /rect#start  parent=g#node1\n  x=120\n  y=100\n/);
+  assert.match(result.stdout, /line#arrow1  parent=g#flowchart\n  x1=280\n  y1=130\n  x2=520\n  y2=130\n/);
+  assert.match(result.stdout, /g#node2 moved back\ng#node2\n├── rect#process  x=520 y=100/);
+  assert.match(result.stdout, /rect#start  parent=g#flowchart\n/);
+  assert.match(result.stdout, /g#node1  parent=g#node-pair\n/);
+  assert.match(result.stdout, /g#node1  parent=g#flowchart\n/);
+  for (const parent of ['node1', 'node2', 'labels']) {
+    assert.ok(result.stdout.includes(`text#start-label  parent=g#${parent}\n`));
+  }
+  assert.match(result.stdout, /text#process-label  parent=g#flowchart\n/);
+  const originalTree = [
+    'svg (800x600)',
+    '└── g#flowchart',
+    '    ├── g#node1',
+    '    │   ├── rect#start  x=120 y=100 w=160 h=60 fill=#4a90d9',
+    '    │   └── text#start-label  x=155 y=135 text="开始"',
+    '    ├── g#node2',
+    '    │   ├── rect#process  x=520 y=100 w=160 h=60 fill=#f5a623',
+    '    │   └── text#process-label  x=545 y=135 text="处理数据"',
+    '    └── line#arrow1  x1=280 y1=130 x2=520 y2=130 stroke=black',
+    '',
+  ].join('\n');
+  assert.ok(result.stdout.includes(originalTree));
+  assert.ok(result.stdout.endsWith(originalTree));
+});
+
 test('real CLI recovers after input errors, supports CRLF and a final line without newline', () => {
   const result = spawnSync(process.execPath, [fileURLToPath(new URL('../src/Main.js', import.meta.url))], {
     input: ' \r\n# comment "\r\ninit\r\ncreate rect r1 0 0 1 1 "bad\r\ncreate rect r1 0 0 1 1 #abc\r\nshow r1',

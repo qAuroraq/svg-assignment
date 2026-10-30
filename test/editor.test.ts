@@ -255,12 +255,10 @@ test('pending commands and types report their stage; unknown shape error matches
   const session = new TestSession();
   session.run('init');
   const before = session.run('tree');
-  for (const name of ['read', 'save', 'canvas', 'group', 'ungroup', 'addto']) {
+  for (const name of ['read', 'save', 'canvas']) {
     assert.equal(session.run(name), `error: not implemented in this round: ${name}`);
   }
-  for (const type of ['g']) {
-    assert.equal(session.run(`create ${type} example`), `error: not implemented in this round: create ${type}`);
-  }
+  assert.equal(session.run('create g example extra'), 'error: usage: create g <id>');
   for (const type of ['hexagon', 'box']) {
     assert.equal(session.run(`create ${type} example`), `error: unknown shape type: ${type} (is the plugin loaded?)`);
   }

@@ -22,19 +22,19 @@ export class ScaleCommand extends EditingCommand {
     const before = shape.captureGeometry();
     shape.scale(factor);
     this.state = { shape, before, after: shape.captureGeometry() };
-    return `${this.formatter.label(shape)} scaled: ${this.formatter.attributes(shape)}`;
+    return this.formatter.change(shape, 'scaled');
   }
 
   public override undo(): string {
     const { shape, before } = this.requireScaled();
     shape.restoreGeometry(before);
-    return `${this.formatter.label(shape)} scale restored: ${this.formatter.attributes(shape)}`;
+    return this.formatter.change(shape, 'scale restored');
   }
 
   public override redo(): string {
     const { shape, after } = this.requireScaled();
     shape.restoreGeometry(after);
-    return `${this.formatter.label(shape)} scaled: ${this.formatter.attributes(shape)}`;
+    return this.formatter.change(shape, 'scaled');
   }
 
   private requireScaled(): { shape: Shape; before: GeometryState; after: GeometryState } {

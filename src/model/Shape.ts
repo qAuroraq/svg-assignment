@@ -1,6 +1,7 @@
 import { NumberValue } from './NumberValue.js';
+import type { ChildList } from './ChildList.js';
 
-// Opaque to commands; future containers can include child snapshots here.
+// Opaque to commands; containers include recursive child snapshots here.
 export type GeometryState = Readonly<Record<string, unknown>>;
 export type AttributeValue = string | number;
 export type ShapeAttributes = Readonly<Record<string, AttributeValue>>;
@@ -70,5 +71,10 @@ export abstract class Shape {
 
   public getChildren(): readonly Shape[] {
     return [];
+  }
+
+  /** Container capability; leaves have no child list. Structural edits go through Document. */
+  public getChildList(): ChildList | undefined {
+    return undefined;
   }
 }

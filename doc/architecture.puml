@@ -1,0 +1,41 @@
+@startuml architecture
+!pragma layout smetana
+top to bottom direction
+
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName "DejaVu Sans"
+skinparam defaultFontSize 15
+skinparam ArrowColor #35566F
+skinparam ArrowThickness 1.5
+skinparam componentBorderColor #35566F
+skinparam componentFontColor #183247
+skinparam componentBackgroundColor #EFF6FB
+skinparam legendBackgroundColor #F8FAFC
+skinparam legendBorderColor #D7E0E8
+
+title SVG CLI Editor - Module Dependencies
+
+component "Main.ts\nAssembly and startup" as Main #F1F3F5
+component "cli\nConsole input and output" as CLI
+component "application\nCommands and history" as Application
+component "io\nSVG and file access" as IO
+component "model\nDocument, shapes and groups" as Model #E8F4EE
+
+Main -[#94A3B8,dashed]-> CLI
+Main -[#94A3B8,dashed]-> Application
+Main -[#94A3B8,dashed]-> IO
+Main -[#94A3B8,dashed]-> Model
+
+CLI ..> Application
+Application ..> Model
+Application ..> IO
+IO ..> Model
+
+legend bottom
+  Arrow: permitted source-code dependency (import / use).
+  Gray arrows: object assembly by Main.ts.
+  Return values do not create reverse dependencies.
+endlegend
+@enduml

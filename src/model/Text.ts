@@ -1,5 +1,5 @@
 import { NumberValue } from './NumberValue.js';
-import { Shape, type AttributeValue, type GeometryState, type ShapeAttributes } from './Shape.js';
+import { Shape, type AttributeValue, type GeometryState, type ShapeAttributes, type ShapeDescription } from './Shape.js';
 
 export class Text extends Shape {
   public constructor(
@@ -19,6 +19,14 @@ export class Text extends Shape {
 
   public override getAttributes(): ShapeAttributes {
     return { ...this.captureGeometry(), text: this.content, ...this.getStyleAttributes() };
+  }
+
+  public override describe(): ShapeDescription {
+    return {
+      tag: this.getType(),
+      attributes: { id: this.getId(), ...this.captureGeometry(), ...this.getStyleAttributes() },
+      text: this.content, children: [],
+    };
   }
 
   public override move(dx: number, dy: number): void {

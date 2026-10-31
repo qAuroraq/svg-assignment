@@ -1,0 +1,47 @@
+# Run from a dedicated temporary directory containing a COPY named input copy.svg.
+# See test/run-io.sh for preparation and cleanup.
+read "input copy.svg"
+canvas
+tree
+undo
+move c1 10 20
+undo
+read missing.svg
+redo
+show c1
+
+canvas 640 480
+canvas
+undo
+create text note 20 40 "  中文 & < > \" ' &amp; 001 false  " in g1
+set g1 stroke-width 2.5
+save "explicit copy.svg"
+undo
+
+# Explicit save must not replace the default read path.
+set t1 text "saved to original read path"
+save
+read "explicit copy.svg"
+show t1
+show note
+read "input copy.svg"
+show t1
+show note
+tree
+
+# Failed canvas preserves redo. Query also leaves redo intact.
+move r2 3 4
+undo
+canvas 500 0
+canvas
+redo
+show r2
+save "roundtrip.svg"
+read "roundtrip.svg"
+tree
+
+# init clears the read path; an explicit save does not establish one.
+init
+save
+save "empty.svg"
+save

@@ -11,6 +11,9 @@ export class HelpCommand extends Command {
     return [
       'Implemented in this round:',
       '  init [w] [h]  (default 800x600; omit both dimensions or provide both)',
+      '  read <file.svg>  (replace document only after complete validation)',
+      '  save [file.svg]  (default: last successfully read path; explicit save does not change it)',
+      '  canvas [w] [h]  (no arguments: query; two arguments: resize without scaling shapes)',
       '  create rect <id> <x> <y> <w> <h> [fill] [in <containerId>]',
       '  create circle <id> <cx> <cy> <r> [fill] [in <containerId>]',
       '  create ellipse <id> <cx> <cy> <rx> <ry> [fill] [in <containerId>]',
@@ -45,14 +48,21 @@ export class HelpCommand extends Command {
       'All successful edits, including no-ops, enter history and clear redo.',
       '',
       'Later rounds (not implemented):',
-      '  read <file.svg> | save [file.svg] | canvas [w] [h]',
       '  box/plugins belong to a subsequent assignment phase (unknown shape type).',
+      '  GUI, general SVG transforms and CSS rendering are not implemented.',
+      '',
+      'SVG IO subset: UTF-8 XML 1.0; SVG namespace (including prefixes) or no namespace.',
+      'Six built-in tags, existing geometry, id and explicit common styles; plain text only.',
+      'Lengths: numbers or px; root width/height required; viewBox must match 0 0 width height.',
+      'Missing positions default to 0; sizes/radii are required; missing text is empty.',
+      'DTD, foreign namespaces, unsupported elements/attributes, transform and CSS are rejected.',
       '',
       'Input: blank lines and lines starting with # are ignored; no inline comments.',
       'Double-quoted arguments support spaces, \\" and \\\\; other backslashes are literal.',
       'Canvas dimensions must be > 0; shape sizes/radii and stroke-width must be >= 0.',
       'IDs are case-sensitive, non-empty and contain no whitespace.',
-      'EOF exits normally. init clears history and blocks undo/redo until a successful edit.',
+      'EOF exits normally. Successful init/read/save/canvas resize clear history and block undo/redo',
+      'until a successful edit. Queries and failures leave history unchanged. init clears the read path.',
     ].join('\n');
   }
 }

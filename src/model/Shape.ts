@@ -5,6 +5,12 @@ import type { ChildList } from './ChildList.js';
 export type GeometryState = Readonly<Record<string, unknown>>;
 export type AttributeValue = string | number;
 export type ShapeAttributes = Readonly<Record<string, AttributeValue>>;
+export interface ShapeDescription {
+  readonly tag: string;
+  readonly attributes: ShapeAttributes;
+  readonly text: string | undefined;
+  readonly children: readonly ShapeDescription[];
+}
 
 export abstract class Shape {
   private strokeWidth: number | undefined;
@@ -14,6 +20,10 @@ export abstract class Shape {
     private fill: string | undefined = undefined,
     private stroke: string | undefined = undefined,
   ) {
+    Shape.validateId(id);
+  }
+
+  public static validateId(id: string): void {
     if (id.length === 0 || /\s/u.test(id)) {
       throw new Error('id must be non-empty and contain no whitespace');
     }
@@ -25,6 +35,13 @@ export abstract class Shape {
 
   public getFill(): string | undefined {
     return this.fill;
+  }
+
+  public describe(): ShapeDescription {
+    return {
+      tag: this.getType(), attributes: { id: this.id, ...this.getAttributes() },
+      text: undefined, children: this.getChildren().map((child) => child.describe()),
+    };
   }
 
   public abstract getType(): string;

@@ -11,6 +11,8 @@ import { ShapeFormatter } from '../src/application/ShapeFormatter.js';
 import { CommandLine } from '../src/cli/CommandLine.js';
 import { InputParser } from '../src/cli/InputParser.js';
 import { ShapeFactory } from '../src/model/ShapeFactory.js';
+import { SvgReader } from '../src/io/SvgReader.js';
+import { IoSession } from './IoSession.js';
 
 test('real CLI runs the required core session through EOF', () => {
   const input = readFileSync('test/fixtures/core.svgcmd', 'utf8');
@@ -107,6 +109,45 @@ test('real CLI replays the flowchart and hierarchy edits with correct parents an
   ].join('\n');
   assert.ok(result.stdout.includes(originalTree));
   assert.ok(result.stdout.endsWith(originalTree));
+});
+
+test('real CLI executes IO sequentially in a temporary cwd and preserves roundtrip files', (context) => {
+  const temporary = new IoSession(context);
+  const original = readFileSync('test/fixtures/other.svg', 'utf8');
+  temporary.input(original, 'input copy.svg');
+  const result = spawnSync(process.execPath, [fileURLToPath(new URL('../src/Main.js', import.meta.url))], {
+    input: readFileSync('test/fixtures/io.svgcmd', 'utf8'), cwd: temporary.path(),
+    encoding: 'utf8', timeout: 10_000,
+  });
+  assert.ifError(result.error);
+  assert.equal(result.status, 0);
+  assert.equal(result.stderr, '');
+  assert.deepEqual(result.stdout.match(/^error:.*$/gm), [
+    'error: undo not allowed after io command',
+    'error: cannot read file: missing.svg',
+    'error: undo not allowed after io command',
+    'error: undo not allowed after io command',
+    'error: canvas height must be positive',
+    "error: no save path. use 'save <file.svg>' or read a file first",
+    "error: no save path. use 'save <file.svg>' or read a file first",
+  ]);
+  assert.match(result.stdout, /^warning: assigned id rect1 to unnamed <rect>\nread input copy.svg \(7 elements\)/);
+  assert.equal(result.stdout.match(/warning:/g)?.length, 1);
+  const reader = new SvgReader(new ShapeFactory());
+  const explicit = reader.read(temporary.path('explicit copy.svg')).document;
+  const source = reader.read(temporary.path('input copy.svg')).document;
+  const roundtrip = reader.read(temporary.path('roundtrip.svg')).document;
+  assert.equal(explicit.find('t1').getAttributes().text, 'imported');
+  assert.equal(source.find('t1').getAttributes().text, 'saved to original read path');
+  assert.equal(roundtrip.find('note').getAttributes().text, '  中文 & < > " \' &amp; 001 false  ');
+  assert.equal(roundtrip.getParent(roundtrip.find('note'))?.getId(), 'g1');
+  assert.equal(roundtrip.getWidth(), 640);
+  assert.equal(roundtrip.getHeight(), 480);
+  assert.equal(roundtrip.find('r2').getAttributes().x, 3);
+  assert.equal(roundtrip.find('r2').getAttributes().y, 4);
+  assert.equal(roundtrip.countShapes(), 8);
+  assert.equal(reader.read(temporary.path('empty.svg')).document.countShapes(), 0);
+  assert.equal(readFileSync('test/fixtures/other.svg', 'utf8'), original);
 });
 
 test('real CLI recovers after input errors, supports CRLF and a final line without newline', () => {

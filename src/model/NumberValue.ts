@@ -1,4 +1,10 @@
 export class NumberValue {
+  // The supported length subset: a complete number, optionally followed by px.
+  public static length(token: string, name: string): number {
+    const value = token.trim();
+    return this.parse(value.endsWith('px') ? value.slice(0, -2) : value, name);
+  }
+
   public static parse(token: string, name: string): number {
     if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(token)) {
       throw new Error(`invalid number for ${name}: ${token}`);

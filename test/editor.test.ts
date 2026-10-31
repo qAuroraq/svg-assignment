@@ -251,13 +251,13 @@ test('blank lines, comments, colors and quoted parameters work together', () => 
   assert.equal(session.run('show r3'), 'error: no such shape: r3');
 });
 
-test('pending commands and types report their stage; unknown shape error matches assignment', () => {
+test('help reflects implemented commands and unknown shape error matches assignment', () => {
   const session = new TestSession();
   session.run('init');
   const before = session.run('tree');
-  for (const name of ['read', 'save', 'canvas']) {
-    assert.equal(session.run(name), `error: not implemented in this round: ${name}`);
-  }
+  assert.equal(session.run('read'), 'error: usage: read <file.svg>');
+  assert.match(session.run('save'), /^error: no save path/);
+  assert.equal(session.run('canvas'), 'canvas 800x600');
   assert.equal(session.run('create g example extra'), 'error: usage: create g <id>');
   for (const type of ['hexagon', 'box']) {
     assert.equal(session.run(`create ${type} example`), `error: unknown shape type: ${type} (is the plugin loaded?)`);
@@ -266,7 +266,8 @@ test('pending commands and types report their stage; unknown shape error matches
   assert.equal(session.run('undo'), 'error: undo not allowed after io command');
   const help = session.run('help');
   assert.match(help, /Implemented in this round:[\s\S]*create rect/);
-  assert.match(help, /Later rounds \(not implemented\):[\s\S]*read <file.svg>/);
+  assert.match(help, /read <file.svg>/);
+  assert.match(help, /Later rounds \(not implemented\):[\s\S]*box\/plugins/);
 });
 
 test('every implemented command rejects surplus arguments', () => {

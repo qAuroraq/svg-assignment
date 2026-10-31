@@ -1,4 +1,9 @@
 import type { ShapeFactory } from '../model/ShapeFactory.js';
+import { SvgReader } from '../io/SvgReader.js';
+import { SvgWriter } from '../io/SvgWriter.js';
+import { ReadCommand } from './ReadCommand.js';
+import { SaveCommand } from './SaveCommand.js';
+import { CanvasCommand } from './CanvasCommand.js';
 import type { Command } from './Command.js';
 import { AddToCommand } from './AddToCommand.js';
 import { CommandArguments } from './CommandArguments.js';
@@ -25,6 +30,8 @@ export class CommandDispatcher {
     private readonly editor: Editor,
     private readonly factory: ShapeFactory,
     private readonly formatter: ShapeFormatter,
+    private readonly reader = new SvgReader(factory),
+    private readonly writer = new SvgWriter(),
   ) {}
 
   public dispatch(tokens: readonly string[]): string | undefined {
@@ -58,10 +65,9 @@ export class CommandDispatcher {
       case 'undo': return new UndoCommand(this.editor, args);
       case 'redo': return new RedoCommand(this.editor, args);
       case 'help': return new HelpCommand(args);
-      case 'read':
-      case 'save':
-      case 'canvas':
-        throw new Error(`not implemented in this round: ${name}`);
+      case 'read': return new ReadCommand(this.editor, args, this.reader);
+      case 'save': return new SaveCommand(this.editor, args, this.writer);
+      case 'canvas': return new CanvasCommand(this.editor, args);
       default:
         throw new Error(`unknown command: ${name}`);
     }

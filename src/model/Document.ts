@@ -15,8 +15,8 @@ export class Document {
   private parents = new Map<Shape, Shape | undefined>();
 
   public constructor(
-    private readonly width: number = 800,
-    private readonly height: number = 600,
+    private width: number = 800,
+    private height: number = 600,
   ) {
     NumberValue.positive(width, 'canvas width');
     NumberValue.positive(height, 'canvas height');
@@ -28,6 +28,17 @@ export class Document {
 
   public getHeight(): number {
     return this.height;
+  }
+
+  public resize(width: number, height: number): void {
+    NumberValue.positive(width, 'canvas width');
+    NumberValue.positive(height, 'canvas height');
+    this.width = width;
+    this.height = height;
+  }
+
+  public countShapes(): number {
+    return this.ids.size;
   }
 
   public getChildren(): readonly Shape[] {
